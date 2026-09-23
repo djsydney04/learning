@@ -71,7 +71,7 @@ Our first reductions use whole-block shared memory and barriers so all intermedi
 
 ## Three different waits
 
-| Operation | Scope in this course |
+| Operation | Scope in this guide |
 | --- | --- |
 | `__syncthreads()` | Device threads coordinate inside one block. |
 | `cudaStreamSynchronize(stream)` | Host waits for previously submitted work in one stream. |
@@ -79,8 +79,13 @@ Our first reductions use whole-block shared memory and barriers so all intermedi
 
 These are not interchangeable. Putting a host runtime call in place of a device barrier does not fix a kernel's race.
 
-**Exercise:** a block loads a shared tile, synchronizes, reads the tile, and immediately overwrites it for the next loop iteration. Explain why fast threads could overwrite values before slow threads finish reading. Add a barrier between reading and replacement.
+<details>
+<summary>Optional review</summary>
 
-**Checkpoint:** distinguish avoiding a race by assigning distinct outputs, coordinating phases with a barrier, and combining conflicting updates atomically. Explain why none implies a free global barrier.
+A block loads a shared tile, synchronizes, reads the tile, and immediately overwrites it for the next loop iteration. Explain why fast threads could overwrite values before slow threads finish reading. Add a barrier between reading and replacement.
+
+Distinguish avoiding a race by assigning distinct outputs, coordinating phases with a barrier, and combining conflicting updates atomically. Explain why none implies a free global barrier.
+
+</details>
 
 See NVIDIA's [synchronization guidance for kernels](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html) and [CUDA C++ memory model](https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cuda-cpp-memory-model.html) for formal rules.

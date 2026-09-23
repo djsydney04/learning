@@ -68,13 +68,13 @@ Your C++ source is text for people and the compiler. The compiled executable con
 
 The CPU does not directly “understand” a C++ loop. The compiler lowers it into instructions for updating values, comparing a loop index with a bound, and deciding what to execute next. A compiler may also vectorize the loop, handling multiple elements with one machine instruction.
 
-The earlier [tiny CPU course](../../verilong/cpu/intro.md) goes deeper into how registers, arithmetic circuits, and control logic carry out instructions. You do not need to complete it before proceeding here.
+The earlier [tiny CPU guide](../../verilong/cpu/intro.md) goes deeper into how registers, arithmetic circuits, and control logic carry out instructions. You do not need to complete it before proceeding here.
 
 ## Integers and floating-point numbers
 
 An **integer** represents a whole number. A **floating-point** format represents numbers using a sign, a significand, and a scale resembling scientific notation. With finite bits, it has finite range and precision. Many fractions, including 0.1, cannot be represented exactly in binary floating point.
 
-Our numerical arrays use C++ `float`, the 32-bit floating-point type on the CUDA systems in this course. A million floats occupy 4,000,000 bytes before any surrounding bookkeeping. `sizeof(float)` lets a program ask how many bytes one element occupies.
+Our numerical arrays use C++ `float`, the 32-bit floating-point type on the CUDA systems in this guide. A million floats occupy 4,000,000 bytes before any surrounding bookkeeping. `sizeof(float)` lets a program ask how many bytes one element occupies.
 
 Rounding means two different orders of addition can give slightly different answers. A GPU reduction rearranges additions, so we normally compare with a tolerance:
 
@@ -84,7 +84,8 @@ absolute difference <= absolute tolerance + relative tolerance × |reference|
 
 Absolute tolerance helps near zero; relative tolerance scales with the expected value. Tolerance is chosen for a calculation's precision, magnitude, and accumulated error. It is not a way to excuse incorrect indexing. NaN and unexpected infinity should fail these checks.
 
-## Work it out
+<details>
+<summary>Optional review</summary>
 
 1. Decode binary `1010`.
 2. In `y = alpha * x + 2`, identify the inputs of multiplication and addition.
@@ -92,7 +93,7 @@ Absolute tolerance helps near zero; relative tolerance scales with the expected 
 4. Explain why “load the number 4” and “load the number at address 4” are different.
 
 <details>
-<summary>Check your reasoning</summary>
+<summary>Answers</summary>
 
 1. `8 + 2 = 10`.
 2. Multiply `alpha` by `x`; add that product to constant `2`. Assignment stores the result in `y`.
@@ -101,4 +102,6 @@ Absolute tolerance helps near zero; relative tolerance scales with the expected 
 
 </details>
 
-**Checkpoint:** explain an addition using the words operand, load, register, and store. Then explain what changes if one operand is an immediate constant.
+Explain an addition using the words operand, load, register, and store. Then explain what changes if one operand is an immediate constant.
+
+</details>

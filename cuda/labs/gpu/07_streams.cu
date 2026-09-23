@@ -11,7 +11,10 @@ int main() {
     auto xv = pattern(n), yv = pattern(n, 23);
     for (int i = 0; i < n; ++i) { x[i] = xv[i]; y[i] = yv[i]; out[i] = NAN; }
     DeviceBuffer dx(n), dy(n), dout(n);
-    dout.poison(); // Completed before nonblocking streams are created.
+    dout.poison();
+    // Pageable H2D copies may return after staging, before device DMA finishes.
+    // Establish completion before launching work in independent streams.
+    CUDA_CHECK(cudaDeviceSynchronize());
     cudaStream_t streams[2];
     for (auto& stream : streams) CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
     for (int part = 0; part < 2; ++part) {

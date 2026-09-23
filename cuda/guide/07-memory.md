@@ -6,7 +6,7 @@
 
 ## A hierarchy of storage
 
-| Storage | Who uses it? | Lifetime / important property |
+| Storage | Access | Lifetime / important property |
 | --- | --- | --- |
 | Registers | A thread's own values | Fast on-chip state; finite per SM. |
 | Shared memory | Threads of a block in these labs | Explicit cooperation space, valid during that block's execution. |
@@ -62,8 +62,13 @@ Shared memory itself is organized into banks. Conflicting accesses to distinct w
 
 `cudaMallocManaged` offers a unified-memory allocation accessible under CUDA's managed-memory rules. Depending on the system, data may migrate or be accessed remotely. A unified pointer does not remove access latency, bandwidth limits, synchronization, or residency concerns. CPU access to a result still needs the GPU work to have completed as required by the system's rules.
 
-The explicit copies in this course make data location and lifetime easier to trace. You can later compare managed memory by measuring the full workflow, including page movement, instead of assuming an API name guarantees performance.
+The explicit copies in this guide make data location and lifetime easier to trace. You can later compare managed memory by measuring the full workflow, including page movement, instead of assuming an API name guarantees performance.
 
-**Checkpoint:** for a row-major `[17,23]` float matrix, calculate the last element's offset and the allocation size. Answer: offset 390 and 1,564 bytes. Explain why transposing only your interpretation without changing strides does not transpose the actual values.
+<details>
+<summary>Optional review</summary>
+
+For a row-major `[17,23]` float matrix, calculate the last element's offset and the allocation size. Answer: offset 390 and 1,564 bytes. Explain why transposing only your interpretation without changing strides does not transpose the actual values.
+
+</details>
 
 Reference for access efficiency and memory hierarchy: NVIDIA's [CUDA best practices guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/).

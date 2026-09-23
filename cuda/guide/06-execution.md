@@ -58,8 +58,13 @@ As a hypothetical resource calculation, if an SM had 65,536 32-bit registers and
 
 Our initial one-dimensional blocks use 128 or 256 threads, and matrix blocks use 16×16. Those are readable starting configurations, not a claim of optimal performance. The reduction explicitly requires a power-of-two thread count because of its tree algorithm.
 
-**Exercise:** a one-dimensional block of 100 threads occupies four warps, with only four participating threads in the last warp. A block of 96 occupies three full warps. Neither fact alone tells you which launch runs an entire application faster.
+<details>
+<summary>Optional review</summary>
 
-**Checkpoint:** distinguish a logical thread from a physical execution unit, a block from an SM, and occupancy from measured speed. Explain why block 1 cannot wait indefinitely for block 0 to run first.
+A one-dimensional block of 100 threads occupies four warps, with only four participating threads in the last warp. A block of 96 occupies three full warps. Neither fact alone tells you which launch runs an entire application faster.
+
+Distinguish a logical thread from a physical execution unit, a block from an SM, and occupancy from measured speed. Explain why block 1 cannot wait indefinitely for block 0 to run first.
+
+</details>
 
 Reference: NVIDIA's [programming and hardware model](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html).

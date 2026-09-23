@@ -1,0 +1,6 @@
+name = "formal_methods_primer"
+version = "0.1.0"
+defaultTargets = ["Course"]
+
+[[lean_lib]]
+name = "Course"

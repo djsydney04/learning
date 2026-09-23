@@ -562,6 +562,65 @@ def timeline():
     save(fig, "09_one_instruction.png")
 
 
+def add_program():
+    """The three bytes used by walkthrough.md."""
+    fig, ax = canvas(10.6, 4.15)
+    label(ax, 0.35, 3.85, "The whole program is three bytes", size=14, weight="bold", ha="left")
+    rows = [
+        ("0", "02", "opcode", "ADD", "Do an add. This names the operation."),
+        ("1", "04", "operand", "4", "The number to add. Not an operation."),
+        ("2", "0A", "opcode", "HLT", "Halt: stop. This byte stands alone."),
+    ]
+    y0, rh = 2.85, 0.78
+    for i, (addr, byte, kind, name, plain) in enumerate(rows):
+        y = y0 - i * rh
+        colors = HOT if i == 0 else (REG if i == 1 else CTRL)
+        label(ax, 0.85, y, addr, family=MONO, size=13, color=MUTED)
+        box(ax, 1.35, y - 0.28, 1.15, 0.56, colors, lw=1.8, r=0.06)
+        label(ax, 1.92, y, byte, family=MONO, size=16, weight="bold")
+        label(ax, 2.75, y, kind, size=11, color=MUTED, ha="left")
+        label(ax, 4.15, y, name, family=MONO, size=14, weight="bold", ha="left")
+        label(ax, 5.55, y, plain, size=11, ha="left")
+    label(ax, 0.85, 3.35, "address", size=9.5, color=MUTED)
+    label(ax, 1.92, 3.35, "byte", size=9.5, color=MUTED)
+    curve(ax, (0.28, 2.85), (1.28, 2.85), 0, color=CTRL[1], lw=1.6)
+    label(ax, 0.35, 3.12, "PC", size=11, weight="bold", color=CTRL[1], ha="left")
+    label(ax, 0.35, 0.28, "PC is 0, so the next byte to read is the 02.", size=11, color=MUTED, ha="left")
+    save(fig, "10_add_program.png")
+
+
+def add_snapshots():
+    """Register values at four moments of the walkthrough's ADD."""
+    fig, ax = canvas(11.4, 6.35)
+    label(ax, 0.3, 6.05, "Same add, four moments", size=14, weight="bold", ha="left")
+    cols = [
+        ("Before any rise",
+         [("FETCH", CTRL), ("0", REG), ("00", SOFT), ("00", SOFT), ("0", SOFT)],
+         "Memory is already\nshowing 02. IR has\nnot copied it."),
+        ("After rise 1\nFETCH",
+         [("DECODE", CTRL), ("1", HOT), ("02", HOT), ("00", SOFT), ("0", SOFT)],
+         "IR holds the opcode.\nDecoder already says\n\"needs a second byte.\""),
+        ("After rise 3\nOPERAND",
+         [("EXECUTE", CTRL), ("2", REG), ("02", REG), ("04", HOT), ("0", SOFT)],
+         "ALU result wire is\nalready 4. A has not\ncopied it yet."),
+        ("After rise 4\nEXECUTE",
+         [("FETCH", CTRL), ("2", REG), ("02", REG), ("04", REG), ("4", HOT)],
+         "A copied the 4 on\nthe rise. Next byte\nto read is 0A, halt."),
+    ]
+    names = ["state", "PC", "IR", "operand", "A"]
+    x0, cw = 0.35, 2.75
+    for i, (title, cells, note) in enumerate(cols):
+        x = x0 + i * cw
+        label(ax, x + 1.15, 5.35, title, size=11, weight="bold")
+        for j, ((text, colors), name) in enumerate(zip(cells, names)):
+            y = 4.35 - j * 0.72
+            label(ax, x, y, name, size=9, color=MUTED, ha="left")
+            box(ax, x + 0.95, y - 0.24, 1.35, 0.48, colors, lw=1.5, r=0.05)
+            label(ax, x + 1.62, y, text, family=MONO, size=12, weight="bold")
+        label(ax, x + 1.15, 0.7, note, size=9, color=MUTED)
+    save(fig, "11_add_snapshots.png")
+
+
 if __name__ == "__main__":
     layers()
     computer()
@@ -572,3 +631,5 @@ if __name__ == "__main__":
     datapath()
     fsm()
     timeline()
+    add_program()
+    add_snapshots()

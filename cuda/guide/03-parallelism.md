@@ -1,4 +1,4 @@
-# 3. Why do work in parallel?
+# 3. Parallel work
 
 [← C++](02-cpp.md) · [Next: first kernel →](04-first-kernel.md)
 
@@ -55,7 +55,7 @@ With parallel part speedup `s` and original parallel fraction `p`, ideal total s
 
 ## Decompose a problem before coding
 
-| Calculation | Natural output owner | What needs coordination? |
+| Calculation | Natural output owner | Coordination |
 | --- | --- | --- |
 | Vector addition | One thread per element | No cooperation for separate arrays. |
 | Matrix multiplication | One thread per output entry initially | Shared tiles can reuse inputs later. |
@@ -64,6 +64,11 @@ With parallel part speedup `s` and original parallel fraction `p`, ideal total s
 
 For each problem, ask what a thread reads, what it writes, and whether another thread can access the same location at the same time. Ownership is the beginning of a correctness argument.
 
-**Exercise:** compare `c[i] = a[i] + b[i]`, `a[i] = a[i] + 1`, and `a[i] = a[i-1]`. The first two can assign independent indices under the stated separate-element accesses. The last introduces cross-thread read/write dependencies.
+<details>
+<summary>Optional review</summary>
 
-**Checkpoint:** explain why a million independent additions can be a better GPU workload than five, and why the GPU still might lose if the arrays must be transferred for every tiny operation.
+Compare `c[i] = a[i] + b[i]`, `a[i] = a[i] + 1`, and `a[i] = a[i-1]`. The first two can assign independent indices under the stated separate-element accesses. The last introduces cross-thread read/write dependencies.
+
+Explain why a million independent additions can be a better GPU workload than five, and why the GPU still might lose if the arrays must be transferred for every tiny operation.
+
+</details>

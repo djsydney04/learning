@@ -102,4 +102,9 @@ make build/cpu/01_cpu
 
 Change one input value and the corresponding expected answer. Then write a loop that computes `c[i] = 2 * a[i] + b[i]`. Finally write a function that computes the sum of all five entries of `a`.
 
-**Checkpoint:** explain why `float* p` differs from `float value`, why the loop uses `<` rather than `<=`, and why an address alone cannot tell you how many elements are valid.
+<details>
+<summary>Optional review</summary>
+
+Explain why `float* p` differs from `float value`, why the loop uses `<` rather than `<=`, and why an address alone cannot tell you how many elements are valid.
+
+</details>

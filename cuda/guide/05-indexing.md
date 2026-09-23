@@ -112,6 +112,11 @@ make student LAB=03_grid_stride
 
 The vector test includes values just before and after warp/block boundaries. The SAXPY test intentionally launches only 256 threads for as many as 65,537 elements. A kernel that processes only one element per thread must fail that test.
 
-**Checkpoint:** for `n=1003` and 256 threads per block, compute the grid size and number of unused tail threads. Then identify the thread owning element 700. Answer: 4 blocks, 21 tail threads; block 2, thread 188.
+<details>
+<summary>Optional review</summary>
+
+For `n=1003` and 256 threads per block, compute the grid size and number of unused tail threads. Then identify the thread owning element 700. Answer: 4 blocks, 21 tail threads; block 2, thread 188.
+
+</details>
 
 Primary reference: NVIDIA's [thread indexing and SIMT kernels](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html).

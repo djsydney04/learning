@@ -1,26 +1,17 @@
 # 0. Start here
 
-[Course](../README.md) · [Next: computers and numbers →](01-computers.md)
+[Guide](../README.md) · [Next: computers and numbers →](01-computers.md)
 
-You will first run a program on the CPU, then learn why and how parts of a program move to the GPU. Take one lesson at a time. Before moving on, answer its checkpoint without looking at the code.
+Start with a program on the CPU, then follow how parts of it move to the GPU. Each section includes an optional review you can use when useful.
 
-## A file, a terminal, and a compiler
+The [GPU foundations](../foundations/README.md) introduce the hardware and CUDA's role. The CPU exercises below are ordinary C++ programs; the CUDA kernel labs require a compatible NVIDIA GPU.
 
-A **source file** contains the program you write. A **compiler** translates that source into instructions the machine can execute. A **terminal** lets you type commands to run the compiler and the resulting program. These are three different things.
-
-Open this repository in an editor. Open a terminal and run:
-
-```sh
-pwd
-```
-
-`pwd` prints the folder the terminal is currently working in. On this machine, enter the CUDA folder with:
 
 ```sh
 cd /Users/djsydney/Downloads/learning/cuda
 ```
 
-In another checkout, use its own path. All course commands after this assume the terminal is in `cuda/`. Do not type them into a Python prompt or a C++ source file. In shell examples, a line beginning with `#` is a comment.
+In another checkout, use its own path. All guide commands after this assume the terminal is in `cuda/`. Do not type them into a Python prompt or a C++ source file. In shell examples, a line beginning with `#` is a comment.
 
 ## Start on your CPU
 
@@ -55,7 +46,7 @@ If a compiler is missing on macOS, install Apple's Command Line Tools with `xcod
 
 ## The hardware boundary
 
-Apple's GPU uses Apple's graphics/compute stack; it does not execute these NVIDIA CUDA programs. Installing a Python library or changing a filename to `.cu` does not change that. Use the CPU labs and hand traces locally, then use a compatible NVIDIA machine for the `.cu` labs. Modern CUDA toolkit releases do not support macOS; see NVIDIA's [platform release notes](https://docs.nvidia.com/cuda/archive/12.6.3/cuda-toolkit-release-notes/index.html#deprecated-features).
+Apple's GPU uses Apple's graphics/compute stack; it does not execute these NVIDIA CUDA programs. Installing a Python library or changing a filename to `.cu` does not change that. Use the CPU labs and hand traces locally, then use a compatible NVIDIA machine for the `.cu` labs. CUDA 10.2 was the last release supporting development and execution on macOS; see NVIDIA's [platform release notes](https://docs.nvidia.com/cuda/archive/10.2/cuda-toolkit-release-notes/). That historical release is not a CUDA path for an Apple Silicon GPU.
 
 A CUDA development environment has separate pieces:
 

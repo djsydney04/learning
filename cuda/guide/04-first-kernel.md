@@ -10,7 +10,7 @@ The **host** is the CPU side of the CUDA program. The **device** is the GPU side
 
 ![Separate host and device allocations, transfers in each direction, and a host-launched kernel.](../assets/01-host-device.png)
 
-Our early examples use explicit device allocations. A device pointer is an address for the device's allocation. Passing that pointer to a kernel passes the address, not a copy of the allocation's contents. The CPU must not ordinarily dereference a pointer returned by `cudaMalloc`. More advanced shared/managed memory arrangements exist; this course establishes the explicit model first.
+Our early examples use explicit device allocations. A device pointer is an address for the device's allocation. Passing that pointer to a kernel passes the address, not a copy of the allocation's contents. The CPU must not ordinarily dereference a pointer returned by `cudaMalloc`. More advanced shared/managed memory arrangements exist; this guide establishes the explicit model first.
 
 ## The smallest useful kernel
 
@@ -84,6 +84,11 @@ These are local teaching helpers, not CUDA API names. They deliberately assume n
 
 **Experiment:** change 42 to 84 in the kernel and update the host expectation. Then identify why changing the launch to many threads all writing the same address is unnecessary and introduces conflicting writes.
 
-**Checkpoint:** distinguish the pointer, its allocation, the copied bytes, the launch, and completion. Explain why the integer observed by the CPU changes only after the result is copied back.
+<details>
+<summary>Optional review</summary>
+
+Distinguish the pointer, its allocation, the copied bytes, the launch, and completion. Explain why the integer observed by the CPU changes only after the result is copied back.
+
+</details>
 
 Source for the runtime workflow: NVIDIA's [introduction to CUDA C++](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html).

@@ -136,28 +136,112 @@ PC, so the next fetch happens somewhere else.
 
 ---
 
-## 5. Two kinds of hardware
+## 5. The clock
+
+![Clock waveform with a combinational signal and a register sampling it on rising edges](docs/img/06_clock.png)
+
+Every wire in this CPU is either 0 or 1. Most wires change only because some
+other wire changed. **clk** is a wire with a different job. It flips on a
+steady beat, 0 then 1 then 0 then 1, whether or not the CPU is busy. That beat
+is the **clock**.
+
+Drawn against time, it is a square wave. Time moves to the right.
+
+```
+clk    ___     ___     ___
+    __|   |___|   |___|   |___
+       ^       ^       ^
+     rises   rises   rises
+```
+
+An **edge** is one corner of that wave: the instant the wire changes value.
+
+- A **rising edge** is the corner that goes up. The wire was 0 and becomes 1.
+  Those are the upward lines in the picture. SystemVerilog calls this
+  `posedge`, short for positive edge.
+- A **falling edge** is the corner that goes down. The wire was 1 and becomes
+  0. Tiny8 ignores falling edges. Its registers change only on a rise.
+
+You do not check the clock the way a program checks a variable. A flip-flop
+is built to notice the rise by itself. At that instant it copies its input.
+Until the next rise it holds that copy and ignores the input, even if the
+input keeps changing.
+
+In simulation, nothing physical is ticking. The testbench in `tb/cpu_tb.sv`
+is what flips the wire:
+
+```systemverilog
+initial clk = 0;
+always #5 clk = ~clk;
+```
+
+`clk` starts at 0. `#5` means "wait 5 nanoseconds." `~clk` turns 0 into 1, or
+1 into 0. So the wire flips every 5 ns. The first flip is a rise (0 to 1).
+The next is a fall (1 to 0). A rise comes every 10 ns.
+
+`@(posedge clk)` means "wait until that rise." The testbench prints one line,
+then does exactly that:
+
+```systemverilog
+@(posedge clk);
+```
+
+Each line of `make sim` is one rising edge. Open `waves/tiny8.vcd` and `clk`
+is the square wave. Each upward corner is a rise.
+
+In the diagram, `alu_result` is not a register. It changes whenever its inputs
+change: 5, then 9, then 4, then 6. `acc` is a register. On each rise it copies
+whatever `alu_result` is at that instant, then holds it. The 9 showed up and
+went away between two rises, so `acc` never stored it.
+
+That is why a clock exists. The gates can wiggle and then settle between
+rises, and only the settled value gets stored.
+
+The gap between rises is also the CPU's speed. It has to be long enough for
+the slowest chain of gates to finish, or a register would store a
+half-finished result. A 3 GHz processor is one whose slowest path settles in
+under a third of a nanosecond.
+
+---
+
+## 6. Two kinds of hardware
 
 ![Combinational logic next to a clocked register, and the pc <= pc + 1 feedback loop](docs/img/05_comb_vs_seq.png)
 
-Every digital circuit is built from two kinds of pieces, and SystemVerilog has
-a keyword for each.
+The clock only matters for one of the two kinds of circuit. SystemVerilog has
+a different spelling for each. None of these is a function you call. Each one
+is hardware that is present the whole time the chip is on.
 
-**Combinational logic** (`always_comb`, `assign`) is gates wired together. It
-has no memory. Its output depends only on its inputs right now, so when an
-input changes, the output follows. There is no "wait until later." The ALU,
-the decoder, and the muxes are combinational.
+### `assign` — a wire that is always equal to something
 
-`assign sum = a + b;` and an `always_comb` block both describe that kind of
-circuit. The `=` inside them is a wire, not a step in a program. Change `a`
-and `sum` is already the new total.
+```systemverilog
+assign sum = a + b;
+```
 
-**Sequential logic** (`always_ff @(posedge clk)`) is built from flip-flops,
-which remember a value. `**clk**` is the clock: a wire that flips between 0
-and 1 forever. `**posedge**` means the rising edge, the instant `clk` goes
-from 0 to 1. A register ignores its input until that instant, then copies the
-input and holds it until the next rise. PC, IR, A, Z, and the FSM state are
-sequential.
+There is a wire named `sum`, tied to an adder. When `a` or `b` changes, `sum`
+changes with it, in that same moment. This line does not run later. It is a
+connection. The `=` means "this wire is," not "set this variable when we get
+here."
+
+### `always_comb` — the same kind of circuit, when you need `if` or `case`
+
+```systemverilog
+always_comb begin
+  sum = a + b;
+end
+```
+
+**always** means the block is active the whole time. **comb** means
+combinational: gates, and no memory. The output depends only on the inputs
+right now. Change an input and the output follows. There is no `clk` here.
+
+`assign` and `always_comb` build the same kind of hardware. Use `assign` for
+one connection. Use `always_comb` when the connection needs `if` or `case`,
+the way the decoder looks at an opcode and decides what it is. The ALU, the
+decoder, and the muxes are this kind. Inside the block, `=` still means "this
+wire is."
+
+### `always_ff` — a register that stores a value when the clock rises
 
 ```systemverilog
 always_ff @(posedge clk) begin
@@ -165,49 +249,27 @@ always_ff @(posedge clk) begin
 end
 ```
 
-Read `@(posedge clk)` as "only when the clock rises." The `<=` here is not a
-comparison. Inside `always_ff` it means "store this into the register on that
-edge."
+**ff** means flip-flop, the cell that remembers one value. `@(posedge clk)`
+means "pay attention only when `clk` rises."
 
+Between rises, `pc` stays what it was. On a rise, it stores the new value.
+The `<=` is not "less than or equal." Inside `always_ff` it means "on this
+rise, store this." Every `<=` in the block stores on that same rise, and each
+one uses the values from before the rise. The CPU does not update halfway.
 
-|                | Combinational               | Sequential                  |
-| -------------- | --------------------------- | --------------------------- |
-| SystemVerilog  | `assign`, `always_comb`     | `always_ff @(posedge clk)`  |
-| Memory         | none                        | holds a value               |
-| Output changes | as soon as an input changes | only when `clk` rises       |
-| In Tiny8       | ALU, decoder, muxes         | PC, IR, A, Z, the FSM state |
+Read `pc <= pc + 1` as a picture, not as a later line of code. A register
+named PC has a +1 adder sitting on its input. The adder is always adding.
+The register listens only when `clk` rises, so PC goes up by one per rise.
 
+| | Combinational | Sequential |
+| --- | --- | --- |
+| SystemVerilog | `assign`, `always_comb` | `always_ff @(posedge clk)` |
+| Memory | none | holds a value until the next rise |
+| When it changes | as soon as an input changes | only when `clk` goes from 0 to 1 |
+| In Tiny8 | ALU, decoder, muxes | PC, IR, A, Z, the FSM state |
 
-The bottom of the diagram shows how the two fit together. `pc <= pc + 1`
-describes a register whose output runs through a +1 adder and back into its
-own input. The adder is always adding. The register only takes the new value
-on a clock edge, so PC goes up by exactly one per clock.
-
-Most of a CPU is that pattern repeated: registers feed combinational logic,
-and that logic computes what the registers should hold after the next edge.
-
----
-
-## 6. The clock
-
-![Clock waveform with a combinational signal and a register sampling it on rising edges](docs/img/06_clock.png)
-
-The clock is a signal that flips between 0 and 1 forever. The moment it goes
-from 0 to 1 is the **rising edge**, and that is the only moment registers
-change.
-
-In the diagram, `alu_result` is combinational. It changes whenever its inputs
-do: 5, then 9, then 4, then 6. `acc` is a register. On each rising edge it
-copies whatever `alu_result` is at that instant. The 9 came and went between
-two edges, so `acc` never saw it.
-
-That is the whole point of a clock. Combinational logic can wiggle and settle
-between edges, and only the settled value gets stored.
-
-The clock also sets a CPU's speed. The time between edges has to be longer
-than the slowest path through the combinational logic, or a register would
-store a half-finished result. A 3 GHz processor is one whose slowest path
-settles in under a third of a nanosecond.
+Most of a CPU is that pairing repeated. Combinational logic computes the next
+value, and a register stores it on the next rise.
 
 ---
 
@@ -329,8 +391,12 @@ software written for it, can stay the same.
 | **Opcode**              | Operation code. The first byte of an instruction: a number that says what to do, such as `01` for load or `02` for add. |
 | **Operand**             | The optional second byte: a constant (`#nn`) or an address.                                                             |
 | **Immediate**           | An operand that is the number itself, not an address.                                                                   |
-| **clk**                 | The clock wire. It flips between 0 and 1. `posedge clk` is the moment it rises, which is when registers update.         |
-| **Rising edge**         | The moment the clock goes from 0 to 1.                                                                                  |
+| **clk**                 | The clock wire. It flips 0, 1, 0, 1 on a steady beat. Registers update only when it goes from 0 to 1.                   |
+| **Edge**                | The instant a wire changes. A rising edge is 0 to 1. A falling edge is 1 to 0.                                          |
+| **Rising edge**         | The upward corner of the clock, when `clk` goes from 0 to 1. Also called `posedge`.                                     |
+| **assign**              | One wire, always equal to an expression. No clock and no memory. `assign sum = a + b` ties `sum` to an adder.           |
+| **always_comb**         | Combinational logic as a block: always active, no clock. Same kind of hardware as `assign`, used when you need `if`.    |
+| **always_ff**           | A register. `always_ff @(posedge clk)` stores a new value only on a rising edge. `<=` inside it means "store this."     |
 | **Register**            | A group of flip-flops that holds a value between clocks.                                                                |
 | **Flip-flop**           | A one-bit memory cell that updates on the rising edge.                                                                  |
 | **Combinational logic** | Gates with no memory. The output follows the inputs immediately.                                                        |
@@ -350,8 +416,9 @@ software written for it, can stay the same.
 
 ## Next
 
-Open `[README.md](README.md)` for the file-by-file plan, then start with
-`src/alu.sv`.
+Open [walkthrough.md](walkthrough.md) next. It follows one `ADD #4` through
+every rise of the clock, with the value in PC, IR, and A after each one.
+[README.md](README.md) is the file-by-file plan for when that story is clear.
 
-The diagrams are drawn by `[utils/make_diagrams.py](../../utils/make_diagrams.py)`
+The diagrams are drawn by [utils/make_diagrams.py](../../utils/make_diagrams.py)
 at the repo root. If you change the design, you can edit that script and redraw them.

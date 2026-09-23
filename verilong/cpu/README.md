@@ -5,6 +5,8 @@ is yours.
 
 New to how processors work? Read [`intro.md`](intro.md) first. It explains
 the fetch–decode–execute loop, the clock, and Tiny8's datapath with diagrams.
+Then read [`walkthrough.md`](walkthrough.md), which follows one `ADD` through
+every clock before any of the TODOs.
 
 ---
 
