@@ -1,9 +1,9 @@
-"""Draw the PNG diagrams used by ../intro.md.
+"""Draw the PNG diagrams used by verilong/cpu/intro.md.
 
-Needs matplotlib:
+Needs matplotlib. From the repo root:
     python3 -m venv /tmp/tiny8-diagrams
     /tmp/tiny8-diagrams/bin/pip install matplotlib
-    /tmp/tiny8-diagrams/bin/python docs/make_diagrams.py
+    /tmp/tiny8-diagrams/bin/python utils/make_diagrams.py
 """
 
 from pathlib import Path
@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Polygon
 
-OUT = Path(__file__).resolve().parent / "img"
+OUT = Path(__file__).resolve().parents[1] / "verilong" / "cpu" / "docs" / "img"
 
 INK = "#1f2933"
 MUTED = "#616e7c"
