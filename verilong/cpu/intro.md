@@ -1,5 +1,10 @@
 # How a processor works
 
+If you want the foundations before this tour, start with the
+[digital-circuits and architecture primer](../../cpu-architecture/README.md).
+It explains bits, gates, clocks, registers, memory, and the SystemVerilog
+notation, including the physical timing that idealized RTL diagrams omit.
+
 A processor does one thing. It reads a number from memory, treats that number
 as an instruction, carries it out, and moves on to the next one. Everything a
 computer does, from a calculator to a web browser, is that loop running

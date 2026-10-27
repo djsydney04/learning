@@ -3,6 +3,10 @@
 The files are a skeleton. Ports, types, and comments are here. The behavior
 is yours.
 
+If bits, gates, registers, or clocks are new, begin with the
+[digital-circuits and computer-architecture primer](../../cpu-architecture/README.md).
+It builds those ideas before connecting them to this CPU and SystemVerilog.
+
 New to how processors work? Read [`intro.md`](intro.md) first. It explains
 the fetch–decode–execute loop, the clock, and Tiny8's datapath with diagrams.
 Then read [`walkthrough.md`](walkthrough.md), which follows one `ADD` through
